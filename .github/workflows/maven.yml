@@ -1,0 +1,68 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# Nom du workflow
+name: Build, Test, and Push Docker Image
+
+# Déclencheurs
+on:
+  push:
+    branches: [ "master" ] # Déclencher uniquement sur la branche main
+  pull_request:
+    branches: [ "master" ]
+
+# Définition des jobs
+jobs:
+  # Job principal
+  build-and-push:
+    # S'exécute sur une machine Ubuntu
+    runs-on: ubuntu-latest
+
+    # Séquence d'étapes
+    steps:
+      # 1. Récupération du code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configuration de QEMU (pour la construction d'images multi-architectures, bonne pratique)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 3. Configuration de Docker Buildx (un builder avancé)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4. Connexion à Docker Hub
+      # Cette étape utilise les secrets que nous avons configurés.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 5. Construction et push de l'image Docker
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          # Le contexte de build est la racine du projet
+          context: .
+          # Le fichier à utiliser est notre Dockerfile
+          file: ./Dockerfile
+          # Pousser l'image vers Docker Hub seulement si le workflow a été déclenché par un push sur la branche "main"
+          # Cela évite de pousser des images pour chaque pull request.
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+          # Les "tags" de l'image. On en crée deux :
+          # - "latest" pour la dernière version.
+          # - Une version avec le hash du commit pour un suivi précis.
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/employee-api:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/employee-api:${{ github.sha }}
+          # Ajoute des métadonnées (labels) à l'image pour un meilleur suivi
+          labels: |
+            maintainer=${{ github.actor }}
+            commit=${{ github.sha }}
