@@ -6,6 +6,8 @@ FROM maven:3.9.8-eclipse-temurin-21 AS build
 # Définit le répertoire de travail à l'intérieur de l'image.
 WORKDIR /app
 
+ENV LANG C.UTF-8
+
 # Copie d'abord le pom.xml pour tirer parti du cache de couches de Docker.
 # Si le pom.xml ne change pas, Docker n'aura pas à re-télécharger les dépendances.
 COPY pom.xml .
