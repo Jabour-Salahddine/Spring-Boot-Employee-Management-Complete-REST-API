@@ -110,15 +110,34 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<!-- Plugin pour s'assurer que les resources sont bien encodées -->
+
+			<!--
+                Nous configurons explicitement le plugin de ressources
+                pour s'assurer qu'il utilise le bon encodage ET
+                qu'il ne tente pas de "filtrer" les fichiers, ce qui peut causer
+                des erreurs d'encodage dans certains environnements comme Docker.
+            -->
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.3.1</version> <!-- Version que vous utilisiez déjà -->
 				<configuration>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
+
+		<!--
+            Cette section désactive explicitement le filtrage pour
+            le répertoire de ressources, ce qui résout souvent les
+            problèmes de "MalformedInputException".
+        -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
 	</build>
 
 </project>
