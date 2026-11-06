@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local credentials and file-backed H2 database
+.env
+.env.*
+!.env.example
+/data/

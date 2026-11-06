@@ -15,5 +15,5 @@ public class RegisterRequest {
     private String lastName;
     private String email;
     private String password;
-    private Role role; // Permet de spécifier le rôle à l'inscription
+    private Role role; // Retained for request compatibility; public registration always grants USER.
 }

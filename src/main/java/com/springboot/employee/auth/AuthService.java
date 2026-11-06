@@ -23,8 +23,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        // Vérifier si un rôle est fourni, sinon assigner USER par défaut
-        Role userRole = (request.getRole() != null) ? request.getRole() : Role.USER;
+        // Public registration must never grant administrative privileges.
+        Role userRole = Role.USER;
 
         var user = User.builder()
                 .firstName(request.getFirstName())
